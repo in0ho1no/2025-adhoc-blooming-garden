@@ -1,4 +1,5 @@
-![GitHub Pages](https://img.shields.io/badge/demo-live-brightgreen)
+![Production](https://img.shields.io/badge/environment-production-brightgreen)
+[![Test Environment](https://img.shields.io/badge/test-environment-orange)](https://github.com/in0ho1no/2025-adhoc-blooming-garden-test)
 ![Made with AI](https://img.shields.io/badge/made%20with-AI-blue)
 ![Vibe Coding](https://img.shields.io/badge/vibe-coding-purple)
 
@@ -28,6 +29,15 @@
 ## 📖 概要
 
 同じ種類の植物を結合させて、より大きな花を咲かせていくパズルゲームです。つぼみから始まり、最終的には太陽のような輝きを放つ花まで育てることができます。
+
+## 🔗 関連リポジトリ
+
+- **🧪 テスト環境**: [2025-adhoc-blooming-garden-test](https://github.com/in0ho1no/2025-adhoc-blooming-garden-test)
+  - 新機能の開発・検証用リポジトリ
+  - 実験的な機能を試すことができます
+  - デモ: https://in0ho1no.github.io/2025-adhoc-blooming-garden-test/
+
+---
 
 ## 🎮 遊び方
 
