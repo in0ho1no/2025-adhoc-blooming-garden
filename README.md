@@ -2,6 +2,8 @@
 
 植物の成長をテーマにした2048風パズルゲーム
 
+**🎮 今すぐプレイ: [https://in0ho1no.github.io/2025-adhoc-blooming-garden/](https://in0ho1no.github.io/2025-adhoc-blooming-garden/)**
+
 ## 📖 概要
 
 同じ種類の植物を結合させて、より大きな花を咲かせていくパズルゲームです。つぼみから始まり、最終的には太陽のような輝きを放つ花まで育てることができます。
@@ -132,26 +134,17 @@ localStorage.removeItem('bloomingGarden_rankings');
 
 ## 🚀 プレイ方法
 
+### オンラインでプレイ
+
+[https://in0ho1no.github.io/2025-adhoc-blooming-garden/](https://in0ho1no.github.io/2025-adhoc-blooming-garden/)
+
 ### ローカルでプレイ
 
-1. `blooming-garden.html`をブラウザで開く
-2. 即座にプレイ開始！
+`blooming-garden.html`をブラウザで開くだけでプレイできます。
 
-### オンラインで公開
+### 自分で公開する
 
-#### GitHub Pagesで公開
-
-1. GitHubリポジトリを作成
-2. `blooming-garden.html` を `index.html` にリネームしてアップロード
-3. Settings → Pages でGitHub Pagesを有効化
-4. `https://ユーザー名.github.io/リポジトリ名/` でアクセス可能
-
-#### Netlify Dropで公開
-
-1. [Netlify Drop](https://app.netlify.com/drop)にアクセス
-2. `blooming-garden.html` を `index.html` にリネーム
-3. ファイルをドラッグ&ドロップ
-4. 即座に公開URL取得
+公開手順の詳細は [DEPLOY.md](DEPLOY.md) をご覧ください。
 
 ## 📋 技術仕様
 

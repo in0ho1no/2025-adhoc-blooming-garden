@@ -1,4 +1,4 @@
-# Growing Photos - GitHub Pages公開方法
+# GitHub Pagesへの公開手順
 
 ## 手順
 
@@ -6,31 +6,31 @@
 
 1. [GitHub](https://github.com)にログイン
 2. 右上の「+」から「New repository」をクリック
-3. リポジトリ名を入力（例：`growing-photos-game`）
+3. リポジトリ名を入力（例：`blooming-garden`）
 4. 「Public」を選択
 5. 「Create repository」をクリック
 
 ### 2. ファイルのアップロード
 
-#### 方法A: ブラウザから直接アップロード（簡単）
+#### 方法A: ブラウザから直接アップロード（推奨・簡単）
 
 1. 作成したリポジトリのページで「uploading an existing file」をクリック
-2. `growing-photos.html` を `index.html` にリネームしてアップロード
+2. `blooming-garden.html` を `index.html` にリネームしてアップロード
 3. 「Commit changes」をクリック
 
 #### 方法B: Git コマンドを使用
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/YOUR_USERNAME/growing-photos-game.git
-cd growing-photos-game
+git clone https://github.com/YOUR_USERNAME/blooming-garden.git
+cd blooming-garden
 
 # ファイルをコピー（index.htmlにリネーム）
-cp /path/to/growing-photos.html index.html
+cp /path/to/blooming-garden.html index.html
 
 # コミット＆プッシュ
 git add index.html
-git commit -m "Add Growing Photos game"
+git commit -m "Add Blooming Garden game"
 git push origin main
 ```
 
@@ -47,8 +47,10 @@ git push origin main
 数分後、以下のURLでゲームにアクセスできます：
 
 ```
-https://YOUR_USERNAME.github.io/growing-photos-game/
+https://YOUR_USERNAME.github.io/リポジトリ名/
 ```
+
+例：`https://in0ho1no.github.io/2025-adhoc-blooming-garden/`
 
 ## 注意事項
 
@@ -64,21 +66,3 @@ https://YOUR_USERNAME.github.io/growing-photos-game/
 1. GitHub Pages設定で「Custom domain」にドメインを入力
 2. DNSプロバイダーでCNAMEレコードを設定
 3. 詳細は[GitHub Pages公式ドキュメント](https://docs.github.com/ja/pages/configuring-a-custom-domain-for-your-github-pages-site)を参照
-
-## 他の公開方法
-
-### Netlify Drop
-
-1. [Netlify Drop](https://app.netlify.com/drop)にアクセス
-2. `growing-photos.html` を `index.html` にリネーム
-3. ファイルをドラッグ＆ドロップ
-4. 即座に公開URL取得！
-
-### Vercel
-
-1. [Vercel](https://vercel.com)にログイン
-2. 「New Project」をクリック
-3. GitHubリポジトリをインポート
-4. 自動的にデプロイ完了
-
-どの方法も無料で利用できます！
