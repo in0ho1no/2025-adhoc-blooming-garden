@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Blooming Garden - 花咲く庭園</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            touch-action: none;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 5px;
+            font-size: 42px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .info-container {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 10px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-board {
+            background: #7cb342;
+            border-radius: 10px;
+            padding: 10px;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10px;
+            width: min(80vw, 400px);
+            height: min(80vw, 400px);
+        }
+
+        .cell {
+            background: #9ccc65;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #33691e;
+            transition: all 0.15s ease-in-out;
+            position: relative;
+        }
+
+        .cell.tile {
+            animation: pop 0.2s ease-in-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .tile-2 { background: #dcedc8; }
+        .tile-4 { background: #c5e1a5; }
+        .tile-8 { background: #aed581; }
+        .tile-16 { background: #9ccc65; }
+        .tile-32 { background: #8bc34a; }
+        .tile-64 { background: #7cb342; }
+        .tile-128 { background: #ffd54f; }
+        .tile-256 { background: #ffca28; }
+        .tile-512 { background: #ffb300; }
+        .tile-1024 { background: #ff8f00; }
+        .tile-2048 { background: #ff6f00; }
+
+        .flower-icon {
+            width: 60%;
+            height: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flower-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
+        }
+
+        .controls {
+            margin-top: 20px;
+            color: white;
+        }
+
+        .btn-new-game {
+            background: #689f38;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s;
+        }
+
+        .btn-new-game:hover {
+            background: #7cb342;
+        }
+
+        .btn-new-game:active {
+            transform: translateY(2px);
+        }
+
+        .growth-guide {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .growth-guide h3 {
+            color: #33691e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .growth-stages {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stage-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stage-icon.locked {
+            background: #bdbdbd !important;
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+
+        .stage-icon.unlocked {
+            animation: unlock 0.5s ease-out;
+        }
+
+        @keyframes unlock {
+            0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .stage-label {
+            font-size: 11px;
+            color: #558b2f;
+            font-weight: bold;
+        }
+
+        .stage-label.locked {
+            color: #9e9e9e;
+        }
+
+        .ranking-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .ranking-panel h3 {
+            color: #33691e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ranking-table th {
+            background: #7cb342;
+            color: white;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .ranking-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .ranking-table tr:hover {
+            background: #f1f8e9;
+        }
+
+        .rank-1 { color: #ffd700; font-weight: bold; }
+        .rank-2 { color: #c0c0c0; font-weight: bold; }
+        .rank-3 { color: #cd7f32; font-weight: bold; }
+
+        .no-record {
+            color: #9e9e9e;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .arrow {
+            color: #689f38;
+            font-size: 20px;
+            padding: 0 5px;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-over.show {
+            display: flex;
+        }
+
+        .game-over-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .game-over-content h2 {
+            margin-bottom: 20px;
+            color: #33691e;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 32px; }
+            .subtitle { font-size: 14px; }
+            .info-container { font-size: 18px; gap: 15px; }
+            .cell { font-size: 24px; }
+            .growth-guide { padding: 10px; }
+            .growth-guide h3 { font-size: 16px; }
+            .stage-icon { width: 40px; height: 40px; }
+            .stage-label { font-size: 10px; }
+            .arrow { font-size: 16px; padding: 0 2px; }
+            .ranking-panel { padding: 10px; }
+            .ranking-panel h3 { font-size: 16px; }
+            .ranking-table th, .ranking-table td { font-size: 12px; padding: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 Blooming Garden 🌸</h1>
+        <p class="subtitle">植物を育てて花を咲かせよう</p>
+        <div class="info-container">
+            <div class="info-item">
+                スコア: <span id="score">0</span>
+            </div>
+            <div class="info-item">
+                プレイ時間: <span id="playTime">0:00</span>
+            </div>
+        </div>
+        <div class="game-board">
+            <div class="grid" id="grid"></div>
+        </div>
+        <div class="controls">
+            <p>スワイプまたはWASDキーで操作</p>
+            <button class="btn-new-game" onclick="game.newGame()">新しいゲーム</button>
+        </div>
+        
+        <div class="growth-guide">
+            <h3>🌿 成長の段階</h3>
+            <div class="growth-stages" id="growthStages"></div>
+        </div>
+        
+        <div class="ranking-panel">
+            <h3>🏆 ランキング TOP5</h3>
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th>順位</th>
+                        <th>スコア</th>
+                        <th>プレイ時間</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingBody">
+                    <tr>
+                        <td colspan="3" class="no-record">まだ記録がありません</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h2>ゲームオーバー</h2>
+            <p>スコア: <span id="finalScore">0</span></p>
+            <p>プレイ時間: <span id="finalTime">0:00</span></p>
+            <button class="btn-new-game" onclick="game.newGame()">もう一度</button>
+        </div>
+    </div>
+
+    <script>
+        class BloomingGarden {
+            constructor() {
+                this.gridSize = 4;
+                this.grid = [];
+                this.score = 0;
+                this.touchStartX = 0;
+                this.touchStartY = 0;
+                this.startTime = null;
+                this.playTimeInterval = null;
+                this.audioContext = null;
+                this.achievedStages = new Set();
+                this.rankings = [];
+                
+                this.growthStages = {
+                    2: 'つぼみ', 4: '芽', 8: '若葉', 16: '成長', 32: '開花', 64: '満開',
+                    128: '黄花', 256: '金花', 512: '橙花', 1024: '夕花', 2048: '太陽'
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.setupGrid();
+                this.setupEventListeners();
+                this.initAudio();
+                this.loadData();
+                this.createGrowthGuide();
+                this.updateRankingDisplay();
+                this.newGame();
+            }
+
+            loadData() {
+                const achievements = localStorage.getItem('bloomingGarden_achievements');
+                const rankings = localStorage.getItem('bloomingGarden_rankings');
+                if (achievements) this.achievedStages = new Set(JSON.parse(achievements));
+                if (rankings) this.rankings = JSON.parse(rankings);
+            }
+
+            saveAchievements() {
+                localStorage.setItem('bloomingGarden_achievements', JSON.stringify([...this.achievedStages]));
+            }
+
+            saveRankings() {
+                localStorage.setItem('bloomingGarden_rankings', JSON.stringify(this.rankings));
+            }
+
+            addRanking(score, playTime) {
+                this.rankings.push({ score, playTime });
+                this.rankings.sort((a, b) => b.score - a.score);
+                this.rankings = this.rankings.slice(0, 5);
+                this.saveRankings();
+                this.updateRankingDisplay();
+            }
+
+            updateRankingDisplay() {
+                const tbody = document.getElementById('rankingBody');
+                tbody.innerHTML = '';
+                
+                if (this.rankings.length === 0) {
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.colSpan = 3;
+                    cell.className = 'no-record';
+                    cell.textContent = 'まだ記録がありません';
+                    row.appendChild(cell);
+                    tbody.appendChild(row);
+                    return;
+                }
+
+                this.rankings.forEach((record, index) => {
+                    const row = document.createElement('tr');
+                    
+                    const rankCell = document.createElement('td');
+                    rankCell.className = index < 3 ? `rank-${index + 1}` : '';
+                    const medal = ['🥇', '🥈', '🥉'][index] || '';
+                    rankCell.textContent = `${medal} ${index + 1}位`;
+                    
+                    const scoreCell = document.createElement('td');
+                    scoreCell.textContent = record.score.toLocaleString();
+                    
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = record.playTime;
+                    
+                    row.appendChild(rankCell);
+                    row.appendChild(scoreCell);
+                    row.appendChild(timeCell);
+                    tbody.appendChild(row);
+                });
+            }
+
+            createGrowthGuide() {
+                const container = document.getElementById('growthStages');
+                const stages = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
+                
+                stages.forEach((value, index) => {
+                    if (index > 0) {
+                        const arrow = document.createElement('span');
+                        arrow.className = 'arrow';
+                        arrow.textContent = '→';
+                        container.appendChild(arrow);
+                    }
+                    
+                    const stage = document.createElement('div');
+                    stage.className = 'stage';
+                    
+                    const icon = document.createElement('div');
+                    icon.className = `stage-icon tile-${value}`;
+                    icon.id = `stage-icon-${value}`;
+                    
+                    const isAchieved = this.achievedStages.has(value);
+                    icon.innerHTML = isAchieved ? this.getFlowerSVG(value, 35) : this.getLockedSVG(35);
+                    icon.classList.add(isAchieved ? 'unlocked' : 'locked');
+                    
+                    const label = document.createElement('div');
+                    label.className = 'stage-label';
+                    label.id = `stage-label-${value}`;
+                    label.textContent = isAchieved ? this.growthStages[value] : '???';
+                    if (!isAchieved) label.classList.add('locked');
+                    
+                    stage.appendChild(icon);
+                    stage.appendChild(label);
+                    container.appendChild(stage);
+                });
+            }
+
+            unlockStage(value) {
+                if (this.achievedStages.has(value)) return;
+                
+                this.achievedStages.add(value);
+                this.saveAchievements();
+                
+                const icon = document.getElementById(`stage-icon-${value}`);
+                const label = document.getElementById(`stage-label-${value}`);
+                
+                if (icon && label) {
+                    icon.classList.remove('locked');
+                    icon.classList.add('unlocked');
+                    icon.innerHTML = this.getFlowerSVG(value, 35);
+                    label.classList.remove('locked');
+                    label.textContent = this.growthStages[value];
+                }
+            }
+
+            getLockedSVG(size) {
+                return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                    <rect x="35" y="45" width="30" height="35" fill="#757575" rx="3"/>
+                    <path d="M 40 45 L 40 35 Q 40 25 50 25 Q 60 25 60 35 L 60 45" 
+                          stroke="#757575" stroke-width="5" fill="none"/>
+                    <circle cx="50" cy="62" r="5" fill="#e0e0e0"/>
+                </svg>`;
+            }
+
+            getFlowerSVG(value, size) {
+                const colors = {2:'#8bc34a',4:'#7cb342',8:'#689f38',16:'#558b2f',32:'#33691e',64:'#1b5e20',
+                    128:'#fbc02d',256:'#f9a825',512:'#f57c00',1024:'#e65100',2048:'#ff6f00'};
+                const c = colors[value];
+                const w = '#fff';
+                
+                const templates = {
+                    2: `<circle cx="50" cy="50" r="25" fill="${c}" opacity="0.8"/><circle cx="50" cy="50" r="15" fill="${w}" opacity="0.6"/>`,
+                    4: `<ellipse cx="40" cy="50" rx="15" ry="25" fill="${c}" opacity="0.8"/><ellipse cx="60" cy="50" rx="15" ry="25" fill="${c}" opacity="0.8"/><circle cx="50" cy="50" r="12" fill="${w}"/>`,
+                    8: `<ellipse cx="50" cy="30" rx="12" ry="20" fill="${c}"/><ellipse cx="50" cy="70" rx="12" ry="20" fill="${c}"/><ellipse cx="30" cy="50" rx="20" ry="12" fill="${c}"/><ellipse cx="70" cy="50" rx="20" ry="12" fill="${c}"/><circle cx="50" cy="50" r="10" fill="${w}"/>`,
+                    16: `<ellipse cx="50" cy="25" rx="10" ry="18" fill="${c}"/><ellipse cx="50" cy="75" rx="10" ry="18" fill="${c}"/><ellipse cx="25" cy="50" rx="18" ry="10" fill="${c}"/><ellipse cx="75" cy="50" rx="18" ry="10" fill="${c}"/><ellipse cx="32" cy="32" rx="14" ry="14" fill="${c}" transform="rotate(45 32 32)"/><ellipse cx="68" cy="68" rx="14" ry="14" fill="${c}" transform="rotate(45 68 68)"/><circle cx="50" cy="50" r="12" fill="${w}"/>`,
+                    32: [0,45,90,135,180,225,270,315].map(a=>`<ellipse cx="50" cy="28" rx="8" ry="18" fill="${c}" transform="rotate(${a} 50 50)"/>`).join('')+`<circle cx="50" cy="50" r="12" fill="${w}"/>`,
+                    64: [0,40,80,120,160,200,240,280,320].map(a=>`<ellipse cx="50" cy="25" rx="10" ry="20" fill="${c}" transform="rotate(${a} 50 50)"/>`).join('')+`<circle cx="50" cy="50" r="15" fill="${w}"/>`,
+                    128: [0,30,60,90,120,150,180,210,240,270,300,330].map(a=>`<ellipse cx="50" cy="22" rx="8" ry="22" fill="${c}" transform="rotate(${a} 50 50)"/>`).join('')+`<circle cx="50" cy="50" r="18" fill="#ff8f00"/><circle cx="50" cy="50" r="12" fill="${w}"/>`,
+                    256: [0,25,50,75,100,125,150,175,200,225,250,275,300,325,350].map(a=>`<ellipse cx="50" cy="20" rx="7" ry="24" fill="${c}" transform="rotate(${a} 50 50)"/>`).join('')+`<circle cx="50" cy="50" r="20" fill="#fff9c4"/><circle cx="50" cy="50" r="12" fill="${w}"/>`,
+                    512: `<circle cx="50" cy="50" r="35" fill="${c}" opacity="0.3"/>`+[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340].map(a=>`<ellipse cx="50" cy="18" rx="6" ry="26" fill="${c}" transform="rotate(${a} 50 50)"/>`).join('')+`<circle cx="50" cy="50" r="15" fill="${w}"/>`,
+                    1024: `<circle cx="50" cy="50" r="40" fill="${c}" opacity="0.2"/><circle cx="50" cy="50" r="30" fill="${c}" opacity="0.4"/>`+[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(a=>`<ellipse cx="50" cy="15" rx="5" ry="28" fill="${c}" transform="rotate(${a} 50 50)"/>`).join('')+`<circle cx="50" cy="50" r="18" fill="#ffeb3b"/>`,
+                    2048: `<circle cx="50" cy="50" r="45" fill="${c}" opacity="0.1"/><circle cx="50" cy="50" r="35" fill="${c}" opacity="0.3"/><circle cx="50" cy="50" r="25" fill="${c}" opacity="0.5"/>`+[0,12,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204,216,228,240,252,264,276,288,300,312,324,336,348].map(a=>`<line x1="50" y1="50" x2="50" y2="10" stroke="${c}" stroke-width="3" transform="rotate(${a} 50 50)"/>`).join('')+`<circle cx="50" cy="50" r="20" fill="${w}"/><circle cx="50" cy="50" r="15" fill="#ffeb3b"/>`
+                };
+                
+                return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">${templates[value] || `<circle cx="50" cy="50" r="20" fill="${c}"/>`}</svg>`;
+            }
+
+            initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            playMergeSound() {
+                if (!this.audioContext) return;
+                if (this.audioContext.state === 'suspended') this.audioContext.resume();
+
+                const now = this.audioContext.currentTime;
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(this.audioContext.destination);
+                
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.05);
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.2, now + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.type = 'sine';
+                
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+
+            startTimer() {
+                this.startTime = Date.now();
+                this.playTimeInterval = setInterval(() => this.updatePlayTime(), 1000);
+            }
+
+            stopTimer() {
+                if (this.playTimeInterval) {
+                    clearInterval(this.playTimeInterval);
+                    this.playTimeInterval = null;
+                }
+            }
+
+            updatePlayTime() {
+                if (!this.startTime) return;
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const m = Math.floor(elapsed / 60);
+                const s = elapsed % 60;
+                document.getElementById('playTime').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+            }
+
+            getPlayTimeString() {
+                if (!this.startTime) return '0:00';
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const m = Math.floor(elapsed / 60);
+                const s = elapsed % 60;
+                return `${m}:${s.toString().padStart(2, '0')}`;
+            }
+
+            setupGrid() {
+                const gridElement = document.getElementById('grid');
+                gridElement.innerHTML = '';
+                for (let i = 0; i < 16; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${i}`;
+                    gridElement.appendChild(cell);
+                }
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key)) {
+                        e.preventDefault();
+                        this.handleInput(e.key);
+                    }
+                });
+
+                const grid = document.getElementById('grid');
+                grid.addEventListener('touchstart', (e) => {
+                    this.touchStartX = e.touches[0].clientX;
+                    this.touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                grid.addEventListener('touchend', (e) => {
+                    const dx = e.changedTouches[0].clientX - this.touchStartX;
+                    const dy = e.changedTouches[0].clientY - this.touchStartY;
+                    if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return;
+                    
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        this.move(dx > 0 ? 'right' : 'left');
+                    } else {
+                        this.move(dy > 0 ? 'down' : 'up');
+                    }
+                }, { passive: true });
+            }
+
+            handleInput(key) {
+                const map = {ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right'};
+                if (map[key]) this.move(map[key]);
+            }
+
+            newGame() {
+                this.grid = Array(4).fill(null).map(() => Array(4).fill(0));
+                this.score = 0;
+                this.stopTimer();
+                this.startTimer();
+                this.updateScore();
+                this.addNewTile();
+                this.addNewTile();
+                this.render();
+                document.getElementById('gameOver').classList.remove('show');
+            }
+
+            addNewTile() {
+                const empty = [];
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        if (this.grid[i][j] === 0) empty.push({i, j});
+                    }
+                }
+                if (empty.length > 0) {
+                    const {i, j} = empty[Math.floor(Math.random() * empty.length)];
+                    this.grid[i][j] = Math.random() < 0.9 ? 2 : 4;
+                }
+            }
+
+            move(dir) {
+                const old = JSON.stringify(this.grid);
+                let merged = false;
+                
+                if (dir === 'up') merged = this.moveUp();
+                else if (dir === 'down') merged = this.moveDown();
+                else if (dir === 'left') merged = this.moveLeft();
+                else if (dir === 'right') merged = this.moveRight();
+
+                if (old !== JSON.stringify(this.grid)) {
+                    if (merged) this.playMergeSound();
+                    this.addNewTile();
+                    this.render();
+                    this.updateScore();
+                    
+                    if (this.isGameOver()) {
+                        this.stopTimer();
+                        const finalTime = this.getPlayTimeString();
+                        this.addRanking(this.score, finalTime);
+                        setTimeout(() => {
+                            document.getElementById('finalScore').textContent = this.score;
+                            document.getElementById('finalTime').textContent = finalTime;
+                            document.getElementById('gameOver').classList.add('show');
+                        }, 300);
+                    }
+                }
+            }
+
+            moveLeft() {
+                let merged = false;
+                for (let i = 0; i < 4; i++) {
+                    let row = this.grid[i].filter(v => v !== 0);
+                    for (let j = 0; j < row.length - 1; j++) {
+                        if (row[j] === row[j + 1]) {
+                            row[j] *= 2;
+                            this.score += row[j];
+                            this.unlockStage(row[j]);
+                            row.splice(j + 1, 1);
+                            merged = true;
+                        }
+                    }
+                    while (row.length < 4) row.push(0);
+                    this.grid[i] = row;
+                }
+                return merged;
+            }
+
+            moveRight() {
+                let merged = false;
+                for (let i = 0; i < 4; i++) {
+                    let row = this.grid[i].filter(v => v !== 0);
+                    for (let j = row.length - 1; j > 0; j--) {
+                        if (row[j] === row[j - 1]) {
+                            row[j] *= 2;
+                            this.score += row[j];
+                            this.unlockStage(row[j]);
+                            row.splice(j - 1, 1);
+                            j--;
+                            merged = true;
+                        }
+                    }
+                    while (row.length < 4) row.unshift(0);
+                    this.grid[i] = row;
+                }
+                return merged;
+            }
+
+            moveUp() {
+                let merged = false;
+                for (let j = 0; j < 4; j++) {
+                    let col = [];
+                    for (let i = 0; i < 4; i++) if (this.grid[i][j] !== 0) col.push(this.grid[i][j]);
+                    for (let i = 0; i < col.length - 1; i++) {
+                        if (col[i] === col[i + 1]) {
+                            col[i] *= 2;
+                            this.score += col[i];
+                            this.unlockStage(col[i]);
+                            col.splice(i + 1, 1);
+                            merged = true;
+                        }
+                    }
+                    while (col.length < 4) col.push(0);
+                    for (let i = 0; i < 4; i++) this.grid[i][j] = col[i];
+                }
+                return merged;
+            }
+
+            moveDown() {
+                let merged = false;
+                for (let j = 0; j < 4; j++) {
+                    let col = [];
+                    for (let i = 0; i < 4; i++) if (this.grid[i][j] !== 0) col.push(this.grid[i][j]);
+                    for (let i = col.length - 1; i > 0; i--) {
+                        if (col[i] === col[i - 1]) {
+                            col[i] *= 2;
+                            this.score += col[i];
+                            this.unlockStage(col[i]);
+                            col.splice(i - 1, 1);
+                            i--;
+                            merged = true;
+                        }
+                    }
+                    while (col.length < 4) col.unshift(0);
+                    for (let i = 0; i < 4; i++) this.grid[i][j] = col[i];
+                }
+                return merged;
+            }
+
+            isGameOver() {
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        if (this.grid[i][j] === 0) return false;
+                        const v = this.grid[i][j];
+                        if (j < 3 && v === this.grid[i][j + 1]) return false;
+                        if (i < 3 && v === this.grid[i + 1][j]) return false;
+                    }
+                }
+                return true;
+            }
+
+            updateScore() {
+                document.getElementById('score').textContent = this.score;
+            }
+
+            render() {
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        const cell = document.getElementById(`cell-${i * 4 + j}`);
+                        const v = this.grid[i][j];
+                        cell.className = 'cell';
+                        if (v !== 0) {
+                            cell.classList.add('tile', `tile-${v}`);
+                            cell.innerHTML = `<div class="flower-icon">${this.getFlowerSVG(v, 50)}</div>`;
+                            this.unlockStage(v);
+                        } else {
+                            cell.innerHTML = '';
+                        }
+                    }
+                }
+            }
+        }
+
+        const game = new BloomingGarden();
+    </script>
+</body>
+</html>
