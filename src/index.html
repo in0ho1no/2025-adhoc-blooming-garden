@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Growing Photos</title>
+    <title>Blooming Garden - 花咲く庭園</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,13 +24,21 @@
         .container {
             text-align: center;
             padding: 20px;
+            max-width: 600px;
         }
 
         h1 {
             color: white;
-            margin-bottom: 10px;
-            font-size: 48px;
+            margin-bottom: 5px;
+            font-size: 42px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
 
         .info-container {
@@ -44,18 +52,19 @@
         }
 
         .info-item {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             padding: 10px 20px;
             border-radius: 8px;
             backdrop-filter: blur(10px);
         }
 
         .game-board {
-            background: #4a90a4;
+            background: #7cb342;
             border-radius: 10px;
             padding: 10px;
             display: inline-block;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
         }
 
         .grid {
@@ -68,15 +77,16 @@
         }
 
         .cell {
-            background: #6fb3c5;
+            background: #9ccc65;
             border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 32px;
             font-weight: bold;
-            color: #2c5f6f;
+            color: #33691e;
             transition: all 0.15s ease-in-out;
+            position: relative;
         }
 
         .cell.tile {
@@ -89,18 +99,33 @@
             100% { transform: scale(1); }
         }
 
-        /* タイルの色 - 寒色系 */
-        .tile-2 { background: #d4f1f4; color: #2c5f6f; }
-        .tile-4 { background: #b8e6f0; color: #2c5f6f; }
-        .tile-8 { background: #89cff0; color: #ffffff; }
-        .tile-16 { background: #5dade2; color: #ffffff; }
-        .tile-32 { background: #3498db; color: #ffffff; }
-        .tile-64 { background: #2e86c1; color: #ffffff; }
-        .tile-128 { background: #2874a6; color: #ffffff; font-size: 28px; }
-        .tile-256 { background: #21618c; color: #ffffff; font-size: 28px; }
-        .tile-512 { background: #1b4f72; color: #ffffff; font-size: 28px; }
-        .tile-1024 { background: #154360; color: #ffffff; font-size: 24px; }
-        .tile-2048 { background: #0e2f44; color: #ffffff; font-size: 24px; }
+        /* タイルの色 - 植物の成長をイメージした緑系+暖色 */
+        .tile-2 { background: #dcedc8; } /* つぼみ - 淡い緑 */
+        .tile-4 { background: #c5e1a5; } /* 芽 - 若葉色 */
+        .tile-8 { background: #aed581; } /* 小さな花 - 明るい緑 */
+        .tile-16 { background: #9ccc65; } /* 成長 - 鮮やかな緑 */
+        .tile-32 { background: #8bc34a; } /* 花開く - 濃い緑 */
+        .tile-64 { background: #7cb342; } /* 満開 - 深緑 */
+        .tile-128 { background: #ffd54f; } /* 黄色い花 - 暖色導入 */
+        .tile-256 { background: #ffca28; } /* 金色の花 */
+        .tile-512 { background: #ffb300; } /* オレンジ系 */
+        .tile-1024 { background: #ff8f00; } /* 夕日色 */
+        .tile-2048 { background: #ff6f00; } /* 太陽色 */
+
+        /* 花のアイコン表示用 */
+        .flower-icon {
+            width: 60%;
+            height: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flower-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
+        }
 
         .controls {
             margin-top: 20px;
@@ -108,7 +133,7 @@
         }
 
         .btn-new-game {
-            background: #2874a6;
+            background: #689f38;
             color: white;
             border: none;
             padding: 15px 30px;
@@ -121,11 +146,63 @@
         }
 
         .btn-new-game:hover {
-            background: #3498db;
+            background: #7cb342;
         }
 
         .btn-new-game:active {
             transform: translateY(2px);
+        }
+
+        /* 成長段階の説明パネル */
+        .growth-guide {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .growth-guide h3 {
+            color: #33691e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .growth-stages {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stage-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stage-label {
+            font-size: 11px;
+            color: #558b2f;
+            font-weight: bold;
+        }
+
+        .arrow {
+            color: #689f38;
+            font-size: 20px;
+            padding: 0 5px;
         }
 
         .game-over {
@@ -153,21 +230,26 @@
 
         .game-over-content h2 {
             margin-bottom: 20px;
-            color: #2c5f6f;
+            color: #33691e;
         }
 
         @media (max-width: 600px) {
-            h1 { font-size: 36px; }
+            h1 { font-size: 32px; }
+            .subtitle { font-size: 14px; }
             .info-container { font-size: 18px; gap: 15px; }
             .cell { font-size: 24px; }
-            .tile-128, .tile-256, .tile-512 { font-size: 20px; }
-            .tile-1024, .tile-2048 { font-size: 18px; }
+            .growth-guide { padding: 10px; }
+            .growth-guide h3 { font-size: 16px; }
+            .stage-icon { width: 40px; height: 40px; }
+            .stage-label { font-size: 10px; }
+            .arrow { font-size: 16px; padding: 0 2px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Growing Photos</h1>
+        <h1>🌱 Blooming Garden 🌸</h1>
+        <p class="subtitle">植物を育てて花を咲かせよう</p>
         <div class="info-container">
             <div class="info-item">
                 スコア: <span id="score">0</span>
@@ -182,6 +264,12 @@
         <div class="controls">
             <p>スワイプまたはWASDキーで操作</p>
             <button class="btn-new-game" onclick="game.newGame()">新しいゲーム</button>
+        </div>
+        
+        <!-- 成長段階の説明 -->
+        <div class="growth-guide">
+            <h3>🌿 成長の段階</h3>
+            <div class="growth-stages" id="growthStages"></div>
         </div>
     </div>
 
@@ -208,6 +296,21 @@
                 this.playTimeInterval = null;
                 this.audioContext = null;
                 
+                // 植物の成長段階
+                this.growthStages = {
+                    2: { name: 'つぼみ', icon: 'seed' },
+                    4: { name: '芽', icon: 'sprout' },
+                    8: { name: '若葉', icon: 'leaf2' },
+                    16: { name: '成長', icon: 'leaf4' },
+                    32: { name: '開花', icon: 'flower4' },
+                    64: { name: '満開', icon: 'flower8' },
+                    128: { name: '黄花', icon: 'sunflower' },
+                    256: { name: '金花', icon: 'goldflower' },
+                    512: { name: '橙花', icon: 'orangeflower' },
+                    1024: { name: '夕花', icon: 'sunset' },
+                    2048: { name: '太陽', icon: 'sun' }
+                };
+                
                 this.init();
             }
 
@@ -215,11 +318,171 @@
                 this.setupGrid();
                 this.setupEventListeners();
                 this.initAudio();
+                this.createGrowthGuide();
                 this.newGame();
             }
 
+            createGrowthGuide() {
+                const container = document.getElementById('growthStages');
+                const stages = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
+                
+                stages.forEach((value, index) => {
+                    if (index > 0) {
+                        const arrow = document.createElement('span');
+                        arrow.className = 'arrow';
+                        arrow.textContent = '→';
+                        container.appendChild(arrow);
+                    }
+                    
+                    const stage = document.createElement('div');
+                    stage.className = 'stage';
+                    
+                    const icon = document.createElement('div');
+                    icon.className = `stage-icon tile-${value}`;
+                    icon.innerHTML = this.getFlowerIcon(value, 35);
+                    
+                    const label = document.createElement('div');
+                    label.className = 'stage-label';
+                    label.textContent = this.growthStages[value].name;
+                    
+                    stage.appendChild(icon);
+                    stage.appendChild(label);
+                    container.appendChild(stage);
+                });
+            }
+
+            getFlowerIcon(value, size = 50) {
+                const colors = {
+                    2: '#8bc34a',
+                    4: '#7cb342',
+                    8: '#689f38',
+                    16: '#558b2f',
+                    32: '#33691e',
+                    64: '#1b5e20',
+                    128: '#fbc02d',
+                    256: '#f9a825',
+                    512: '#f57c00',
+                    1024: '#e65100',
+                    2048: '#ff6f00'
+                };
+                
+                const color = colors[value] || '#689f38';
+                const centerColor = value >= 128 ? '#fff' : '#fff';
+                
+                switch(value) {
+                    case 2: // つぼみ
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            <circle cx="50" cy="50" r="25" fill="${color}" opacity="0.8"/>
+                            <circle cx="50" cy="50" r="15" fill="${centerColor}" opacity="0.6"/>
+                        </svg>`;
+                    
+                    case 4: // 芽（2枚の葉）
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            <ellipse cx="40" cy="50" rx="15" ry="25" fill="${color}" opacity="0.8"/>
+                            <ellipse cx="60" cy="50" rx="15" ry="25" fill="${color}" opacity="0.8"/>
+                            <circle cx="50" cy="50" r="12" fill="${centerColor}"/>
+                        </svg>`;
+                    
+                    case 8: // 若葉（4枚の花びら）
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            <ellipse cx="50" cy="30" rx="12" ry="20" fill="${color}"/>
+                            <ellipse cx="50" cy="70" rx="12" ry="20" fill="${color}"/>
+                            <ellipse cx="30" cy="50" rx="20" ry="12" fill="${color}"/>
+                            <ellipse cx="70" cy="50" rx="20" ry="12" fill="${color}"/>
+                            <circle cx="50" cy="50" r="10" fill="${centerColor}"/>
+                        </svg>`;
+                    
+                    case 16: // 成長（6枚の花びら）
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            <ellipse cx="50" cy="25" rx="10" ry="18" fill="${color}"/>
+                            <ellipse cx="50" cy="75" rx="10" ry="18" fill="${color}"/>
+                            <ellipse cx="25" cy="50" rx="18" ry="10" fill="${color}"/>
+                            <ellipse cx="75" cy="50" rx="18" ry="10" fill="${color}"/>
+                            <ellipse cx="32" cy="32" rx="14" ry="14" fill="${color}" transform="rotate(45 32 32)"/>
+                            <ellipse cx="68" cy="68" rx="14" ry="14" fill="${color}" transform="rotate(45 68 68)"/>
+                            <circle cx="50" cy="50" r="12" fill="${centerColor}"/>
+                        </svg>`;
+                    
+                    case 32: // 開花（8枚の花びら）
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            ${[0, 45, 90, 135, 180, 225, 270, 315].map(angle => 
+                                `<ellipse cx="50" cy="28" rx="8" ry="18" fill="${color}" 
+                                transform="rotate(${angle} 50 50)"/>`
+                            ).join('')}
+                            <circle cx="50" cy="50" r="12" fill="${centerColor}"/>
+                        </svg>`;
+                    
+                    case 64: // 満開（より大きな花）
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            ${[0, 40, 80, 120, 160, 200, 240, 280, 320].map(angle => 
+                                `<ellipse cx="50" cy="25" rx="10" ry="20" fill="${color}" 
+                                transform="rotate(${angle} 50 50)"/>`
+                            ).join('')}
+                            <circle cx="50" cy="50" r="15" fill="${centerColor}"/>
+                        </svg>`;
+                    
+                    case 128: // 黄色い花（ひまわり風）
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            ${[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(angle => 
+                                `<ellipse cx="50" cy="22" rx="8" ry="22" fill="${color}" 
+                                transform="rotate(${angle} 50 50)"/>`
+                            ).join('')}
+                            <circle cx="50" cy="50" r="18" fill="#ff8f00"/>
+                            <circle cx="50" cy="50" r="12" fill="${centerColor}"/>
+                        </svg>`;
+                    
+                    case 256: // 金色の花
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            ${[0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350].map(angle => 
+                                `<ellipse cx="50" cy="20" rx="7" ry="24" fill="${color}" 
+                                transform="rotate(${angle} 50 50)"/>`
+                            ).join('')}
+                            <circle cx="50" cy="50" r="20" fill="#fff9c4"/>
+                            <circle cx="50" cy="50" r="12" fill="${centerColor}"/>
+                        </svg>`;
+                    
+                    case 512: // オレンジ色の花
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            <circle cx="50" cy="50" r="35" fill="${color}" opacity="0.3"/>
+                            ${[0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340].map(angle => 
+                                `<ellipse cx="50" cy="18" rx="6" ry="26" fill="${color}" 
+                                transform="rotate(${angle} 50 50)"/>`
+                            ).join('')}
+                            <circle cx="50" cy="50" r="15" fill="${centerColor}"/>
+                        </svg>`;
+                    
+                    case 1024: // 夕日色の花
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            <circle cx="50" cy="50" r="40" fill="${color}" opacity="0.2"/>
+                            <circle cx="50" cy="50" r="30" fill="${color}" opacity="0.4"/>
+                            ${[0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345].map(angle => 
+                                `<ellipse cx="50" cy="15" rx="5" ry="28" fill="${color}" 
+                                transform="rotate(${angle} 50 50)"/>`
+                            ).join('')}
+                            <circle cx="50" cy="50" r="18" fill="#ffeb3b"/>
+                        </svg>`;
+                    
+                    case 2048: // 太陽
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            <circle cx="50" cy="50" r="45" fill="${color}" opacity="0.1"/>
+                            <circle cx="50" cy="50" r="35" fill="${color}" opacity="0.3"/>
+                            <circle cx="50" cy="50" r="25" fill="${color}" opacity="0.5"/>
+                            ${[0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180, 192, 204, 216, 228, 240, 252, 264, 276, 288, 300, 312, 324, 336, 348].map(angle => 
+                                `<line x1="50" y1="50" x2="50" y2="10" stroke="${color}" stroke-width="3" 
+                                transform="rotate(${angle} 50 50)"/>`
+                            ).join('')}
+                            <circle cx="50" cy="50" r="20" fill="#fff"/>
+                            <circle cx="50" cy="50" r="15" fill="#ffeb3b"/>
+                        </svg>`;
+                    
+                    default:
+                        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+                            <circle cx="50" cy="50" r="20" fill="${color}"/>
+                        </svg>`;
+                }
+            }
+
             initAudio() {
-                // Web Audio APIの初期化
                 try {
                     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 } catch (e) {
@@ -230,36 +493,29 @@
             playMergeSound() {
                 if (!this.audioContext) return;
 
-                // AudioContextの再開（ブラウザのポリシー対応）
                 if (this.audioContext.state === 'suspended') {
                     this.audioContext.resume();
                 }
 
                 const now = this.audioContext.currentTime;
-                
-                // オシレーター（音の発生源）を作成
                 const oscillator = this.audioContext.createOscillator();
                 const gainNode = this.audioContext.createGain();
                 
-                // オシレーターをゲインノードに接続し、ゲインノードをスピーカーに接続
                 oscillator.connect(gainNode);
                 gainNode.connect(this.audioContext.destination);
                 
-                // 軽快なポロンという音（C6→E6の2音）
-                oscillator.frequency.setValueAtTime(1046.5, now); // C6
-                oscillator.frequency.exponentialRampToValueAtTime(1318.5, now + 0.05); // E6
+                // より柔らかい音（植物の成長をイメージ）
+                oscillator.frequency.setValueAtTime(523.25, now); // C5
+                oscillator.frequency.exponentialRampToValueAtTime(659.25, now + 0.05); // E5
                 
-                // 音量のエンベロープ（ADSR）
                 gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01); // Attack
-                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15); // Decay & Release
+                gainNode.gain.linearRampToValueAtTime(0.2, now + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
                 
-                // 音の種類（サイン波で柔らかい音）
                 oscillator.type = 'sine';
                 
-                // 再生
                 oscillator.start(now);
-                oscillator.stop(now + 0.15);
+                oscillator.stop(now + 0.2);
             }
 
             startTimer() {
@@ -309,7 +565,6 @@
             }
 
             setupEventListeners() {
-                // キーボード操作
                 document.addEventListener('keydown', (e) => {
                     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(e.key)) {
                         e.preventDefault();
@@ -317,7 +572,6 @@
                     }
                 });
 
-                // タッチ操作
                 const grid = document.getElementById('grid');
                 grid.addEventListener('touchstart', (e) => {
                     this.touchStartX = e.touches[0].clientX;
@@ -341,14 +595,12 @@
                 }
 
                 if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    // 横方向
                     if (deltaX > 0) {
                         this.move('right');
                     } else {
                         this.move('left');
                     }
                 } else {
-                    // 縦方向
                     if (deltaY > 0) {
                         this.move('down');
                     } else {
@@ -538,14 +790,12 @@
             }
 
             isGameOver() {
-                // 空きマスがあるか
                 for (let i = 0; i < this.gridSize; i++) {
                     for (let j = 0; j < this.gridSize; j++) {
                         if (this.grid[i][j] === 0) return false;
                     }
                 }
 
-                // 結合可能なタイルがあるか
                 for (let i = 0; i < this.gridSize; i++) {
                     for (let j = 0; j < this.gridSize; j++) {
                         const current = this.grid[i][j];
@@ -568,17 +818,18 @@
                         const cell = document.getElementById(`cell-${cellIndex}`);
                         const value = this.grid[i][j];
                         
-                        cell.textContent = value === 0 ? '' : value;
                         cell.className = 'cell';
                         if (value !== 0) {
                             cell.classList.add('tile', `tile-${value}`);
+                            cell.innerHTML = `<div class="flower-icon">${this.getFlowerIcon(value)}</div>`;
+                        } else {
+                            cell.innerHTML = '';
                         }
                     }
                 }
             }
         }
 
-        // ゲーム開始
         const game = new Game2048();
     </script>
 </body>
