@@ -15,7 +15,7 @@
 #### 方法A: ブラウザから直接アップロード（推奨・簡単）
 
 1. 作成したリポジトリのページで「uploading an existing file」をクリック
-2. `blooming-garden.html` を `index.html` にリネームしてアップロード
+2. `index.html` をそのままアップロード
 3. 「Commit changes」をクリック
 
 #### 方法B: Git コマンドを使用
@@ -25,8 +25,8 @@
 git clone https://github.com/YOUR_USERNAME/blooming-garden.git
 cd blooming-garden
 
-# ファイルをコピー（index.htmlにリネーム）
-cp /path/to/blooming-garden.html index.html
+# ファイルをコピー
+cp /path/to/index.html index.html
 
 # コミット＆プッシュ
 git add index.html
@@ -54,7 +54,7 @@ https://YOUR_USERNAME.github.io/リポジトリ名/
 
 ## 注意事項
 
-- ファイル名は必ず `index.html` にする必要があります
+- ファイル名は `index.html` のままでOKです
 - GitHub Pagesは無料で利用できます
 - 変更を加えた場合は、同じ手順でファイルを更新するだけでOKです
 - HTTPSで自動的に配信されます
