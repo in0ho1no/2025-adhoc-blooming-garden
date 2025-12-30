@@ -426,6 +426,7 @@
             constructor() {
                 this.gridSize = 4;
                 this.grid = [];
+                this.prevGrid = [];
                 this.score = 0;
                 this.touchStartX = 0;
                 this.touchStartY = 0;
@@ -726,36 +727,18 @@
             move(dir) {
                 const old = JSON.stringify(this.grid);
                 let merged = false;
-                let mergedCells = [];
                 
-                if (dir === 'up') {
-                    const result = this.moveUp();
-                    merged = result.merged;
-                    mergedCells = result.cells;
-                } else if (dir === 'down') {
-                    const result = this.moveDown();
-                    merged = result.merged;
-                    mergedCells = result.cells;
-                } else if (dir === 'left') {
-                    const result = this.moveLeft();
-                    merged = result.merged;
-                    mergedCells = result.cells;
-                } else if (dir === 'right') {
-                    const result = this.moveRight();
-                    merged = result.merged;
-                    mergedCells = result.cells;
-                }
+                if (dir === 'up') merged = this.moveUp();
+                else if (dir === 'down') merged = this.moveDown();
+                else if (dir === 'left') merged = this.moveLeft();
+                else if (dir === 'right') merged = this.moveRight();
 
                 if (old !== JSON.stringify(this.grid)) {
                     if (merged) {
                         this.playMergeSound();
-                        // 結合エフェクトを表示
-                        mergedCells.forEach(({i, j}) => {
-                            this.showMergeEffect(i, j);
-                        });
                     }
                     this.addNewTile();
-                    this.render();
+                    this.render(merged);
                     this.updateScore();
                     
                     if (this.isGameOver()) {
@@ -771,9 +754,136 @@
                 }
             }
 
+            moveLeft() {
+                let merged = false;
+                for (let i = 0; i < 4; i++) {
+                    let row = this.grid[i].filter(v => v !== 0);
+                    for (let j = 0; j < row.length - 1; j++) {
+                        if (row[j] === row[j + 1]) {
+                            row[j] *= 2;
+                            this.score += row[j];
+                            this.unlockStage(row[j]);
+                            row.splice(j + 1, 1);
+                            merged = true;
+                        }
+                    }
+                    while (row.length < 4) row.push(0);
+                    this.grid[i] = row;
+                }
+                return merged;
+            }
+
+            moveRight() {
+                let merged = false;
+                for (let i = 0; i < 4; i++) {
+                    let row = this.grid[i].filter(v => v !== 0);
+                    for (let j = row.length - 1; j > 0; j--) {
+                        if (row[j] === row[j - 1]) {
+                            row[j] *= 2;
+                            this.score += row[j];
+                            this.unlockStage(row[j]);
+                            row.splice(j - 1, 1);
+                            j--;
+                            merged = true;
+                        }
+                    }
+                    while (row.length < 4) row.unshift(0);
+                    this.grid[i] = row;
+                }
+                return merged;
+            }
+
+            moveUp() {
+                let merged = false;
+                for (let j = 0; j < 4; j++) {
+                    let col = [];
+                    for (let i = 0; i < 4; i++) if (this.grid[i][j] !== 0) col.push(this.grid[i][j]);
+                    for (let i = 0; i < col.length - 1; i++) {
+                        if (col[i] === col[i + 1]) {
+                            col[i] *= 2;
+                            this.score += col[i];
+                            this.unlockStage(col[i]);
+                            col.splice(i + 1, 1);
+                            merged = true;
+                        }
+                    }
+                    while (col.length < 4) col.push(0);
+                    for (let i = 0; i < 4; i++) this.grid[i][j] = col[i];
+                }
+                return merged;
+            }
+
+            moveDown() {
+                let merged = false;
+                for (let j = 0; j < 4; j++) {
+                    let col = [];
+                    for (let i = 0; i < 4; i++) if (this.grid[i][j] !== 0) col.push(this.grid[i][j]);
+                    for (let i = col.length - 1; i > 0; i--) {
+                        if (col[i] === col[i - 1]) {
+                            col[i] *= 2;
+                            this.score += col[i];
+                            this.unlockStage(col[i]);
+                            col.splice(i - 1, 1);
+                            i--;
+                            merged = true;
+                        }
+                    }
+                    while (col.length < 4) col.unshift(0);
+                    for (let i = 0; i < 4; i++) this.grid[i][j] = col[i];
+                }
+                return merged;
+            }
+
+            isGameOver() {
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        if (this.grid[i][j] === 0) return false;
+                        const v = this.grid[i][j];
+                        if (j < 3 && v === this.grid[i][j + 1]) return false;
+                        if (i < 3 && v === this.grid[i + 1][j]) return false;
+                    }
+                }
+                return true;
+            }
+
+            updateScore() {
+                document.getElementById('score').textContent = this.score;
+            }
+
+            render(wasMerged = false) {
+                // 前回の状態を保存
+                const prevGrid = this.prevGrid || Array(4).fill(null).map(() => Array(4).fill(0));
+                
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        const cell = document.getElementById(`cell-${i * 4 + j}`);
+                        const v = this.grid[i][j];
+                        
+                        cell.className = 'cell';
+                        if (v !== 0) {
+                            cell.classList.add('tile', `tile-${v}`);
+                            cell.innerHTML = `<div class="flower-icon">${this.getFlowerSVG(v, 50)}</div>`;
+                            this.unlockStage(v);
+                            
+                            // 結合エフェクトの判定：前回より数値が大きくなったセル
+                            if (wasMerged && prevGrid[i][j] !== 0 && v > prevGrid[i][j]) {
+                                this.showMergeEffect(i, j);
+                            }
+                        } else {
+                            cell.innerHTML = '';
+                        }
+                    }
+                }
+                
+                // 現在の状態を保存
+                this.prevGrid = this.grid.map(row => [...row]);
+            }
+
             showMergeEffect(i, j) {
                 const cellIndex = i * 4 + j;
                 const cell = document.getElementById(`cell-${cellIndex}`);
+                
+                if (!cell) return;
                 
                 // セルに結合アニメーションを追加
                 cell.classList.add('merged');
@@ -800,133 +910,6 @@
                     
                     cell.appendChild(particle);
                     setTimeout(() => particle.remove(), 600);
-                }
-            }
-
-            moveLeft() {
-                let merged = false;
-                let mergedCells = [];
-                for (let i = 0; i < 4; i++) {
-                    let row = this.grid[i].filter(v => v !== 0);
-                    for (let j = 0; j < row.length - 1; j++) {
-                        if (row[j] === row[j + 1]) {
-                            row[j] *= 2;
-                            this.score += row[j];
-                            this.unlockStage(row[j]);
-                            row.splice(j + 1, 1);
-                            merged = true;
-                            // 結合後の位置を記録
-                            mergedCells.push({i, j});
-                        }
-                    }
-                    while (row.length < 4) row.push(0);
-                    this.grid[i] = row;
-                }
-                return {merged, cells: mergedCells};
-            }
-
-            moveRight() {
-                let merged = false;
-                let mergedCells = [];
-                for (let i = 0; i < 4; i++) {
-                    let row = this.grid[i].filter(v => v !== 0);
-                    let originalLength = row.length;
-                    for (let j = row.length - 1; j > 0; j--) {
-                        if (row[j] === row[j - 1]) {
-                            row[j] *= 2;
-                            this.score += row[j];
-                            this.unlockStage(row[j]);
-                            row.splice(j - 1, 1);
-                            j--;
-                            merged = true;
-                            // 結合後の位置を記録（右寄せされるので3から逆算）
-                            const finalJ = 3 - (originalLength - 1 - j);
-                            mergedCells.push({i, j: finalJ});
-                        }
-                    }
-                    while (row.length < 4) row.unshift(0);
-                    this.grid[i] = row;
-                }
-                return {merged, cells: mergedCells};
-            }
-
-            moveUp() {
-                let merged = false;
-                let mergedCells = [];
-                for (let j = 0; j < 4; j++) {
-                    let col = [];
-                    for (let i = 0; i < 4; i++) if (this.grid[i][j] !== 0) col.push(this.grid[i][j]);
-                    for (let i = 0; i < col.length - 1; i++) {
-                        if (col[i] === col[i + 1]) {
-                            col[i] *= 2;
-                            this.score += col[i];
-                            this.unlockStage(col[i]);
-                            col.splice(i + 1, 1);
-                            merged = true;
-                            mergedCells.push({i, j});
-                        }
-                    }
-                    while (col.length < 4) col.push(0);
-                    for (let i = 0; i < 4; i++) this.grid[i][j] = col[i];
-                }
-                return {merged, cells: mergedCells};
-            }
-
-            moveDown() {
-                let merged = false;
-                let mergedCells = [];
-                for (let j = 0; j < 4; j++) {
-                    let col = [];
-                    for (let i = 0; i < 4; i++) if (this.grid[i][j] !== 0) col.push(this.grid[i][j]);
-                    let originalLength = col.length;
-                    for (let i = col.length - 1; i > 0; i--) {
-                        if (col[i] === col[i - 1]) {
-                            col[i] *= 2;
-                            this.score += col[i];
-                            this.unlockStage(col[i]);
-                            col.splice(i - 1, 1);
-                            i--;
-                            merged = true;
-                            const finalI = 3 - (originalLength - 1 - i);
-                            mergedCells.push({i: finalI, j});
-                        }
-                    }
-                    while (col.length < 4) col.unshift(0);
-                    for (let i = 0; i < 4; i++) this.grid[i][j] = col[i];
-                }
-                return {merged, cells: mergedCells};
-            }
-
-            isGameOver() {
-                for (let i = 0; i < 4; i++) {
-                    for (let j = 0; j < 4; j++) {
-                        if (this.grid[i][j] === 0) return false;
-                        const v = this.grid[i][j];
-                        if (j < 3 && v === this.grid[i][j + 1]) return false;
-                        if (i < 3 && v === this.grid[i + 1][j]) return false;
-                    }
-                }
-                return true;
-            }
-
-            updateScore() {
-                document.getElementById('score').textContent = this.score;
-            }
-
-            render() {
-                for (let i = 0; i < 4; i++) {
-                    for (let j = 0; j < 4; j++) {
-                        const cell = document.getElementById(`cell-${i * 4 + j}`);
-                        const v = this.grid[i][j];
-                        cell.className = 'cell';
-                        if (v !== 0) {
-                            cell.classList.add('tile', `tile-${v}`);
-                            cell.innerHTML = `<div class="flower-icon">${this.getFlowerSVG(v, 50)}</div>`;
-                            this.unlockStage(v);
-                        } else {
-                            cell.innerHTML = '';
-                        }
-                    }
                 }
             }
         }
