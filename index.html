@@ -185,6 +185,33 @@
             transform: translateY(2px);
         }
 
+        .btn-reset {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        .btn-reset:hover {
+            background: #d32f2f;
+        }
+
+        .btn-reset:active {
+            transform: translateY(2px);
+        }
+
+        .reset-warning {
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
         .controls-top {
             margin-bottom: 15px;
             color: white;
@@ -409,6 +436,8 @@
                     </tr>
                 </tbody>
             </table>
+            <button class="btn-reset" onclick="game.resetAllData()">🗑️ 記録をリセット</button>
+            <p class="reset-warning">※ 達成状況とランキングがすべて削除されます</p>
         </div>
     </div>
 
@@ -844,6 +873,60 @@
                     }
                 }
                 return true;
+            }
+
+            resetAllData() {
+                if (!confirm('達成状況とランキングをすべてリセットします。\nこの操作は取り消せません。\n\n本当にリセットしますか？')) {
+                    return;
+                }
+                
+                // localStorageから削除
+                localStorage.removeItem('bloomingGarden_achievements');
+                localStorage.removeItem('bloomingGarden_rankings');
+                
+                // メモリ上のデータもクリア
+                this.achievedStages.clear();
+                this.rankings = [];
+                
+                // UIを更新
+                this.updateRankingDisplay();
+                this.updateGrowthGuide();
+            }
+
+            updateGrowthGuide() {
+                const container = document.getElementById('growthStages');
+                container.innerHTML = '';
+                const stages = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
+                
+                stages.forEach((value, index) => {
+                    if (index > 0) {
+                        const arrow = document.createElement('span');
+                        arrow.className = 'arrow';
+                        arrow.textContent = '→';
+                        container.appendChild(arrow);
+                    }
+                    
+                    const stage = document.createElement('div');
+                    stage.className = 'stage';
+                    
+                    const icon = document.createElement('div');
+                    icon.className = `stage-icon tile-${value}`;
+                    icon.id = `stage-icon-${value}`;
+                    
+                    const isAchieved = this.achievedStages.has(value);
+                    icon.innerHTML = isAchieved ? this.getFlowerSVG(value, 35) : this.getLockedSVG(35);
+                    icon.classList.add(isAchieved ? 'unlocked' : 'locked');
+                    
+                    const label = document.createElement('div');
+                    label.className = 'stage-label';
+                    label.id = `stage-label-${value}`;
+                    label.textContent = isAchieved ? this.growthStages[value] : '???';
+                    if (!isAchieved) label.classList.add('locked');
+                    
+                    stage.appendChild(icon);
+                    stage.appendChild(label);
+                    container.appendChild(stage);
+                });
             }
 
             updateScore() {
