@@ -16,15 +16,16 @@
             background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
-            touch-action: none;
+            padding: 20px 0;
         }
 
         .container {
             text-align: center;
             padding: 20px;
             max-width: 600px;
+            width: 100%;
         }
 
         h1 {
@@ -65,6 +66,7 @@
             display: inline-block;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             margin-bottom: 20px;
+            touch-action: none;
         }
 
         .grid {
@@ -93,10 +95,38 @@
             animation: pop 0.2s ease-in-out;
         }
 
+        .cell.merged {
+            animation: merge 0.4s ease-in-out;
+        }
+
         @keyframes pop {
             0% { transform: scale(0); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
+        }
+
+        @keyframes merge {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.3) rotate(5deg); box-shadow: 0 0 20px rgba(139, 195, 74, 0.8); }
+            50% { transform: scale(1.2) rotate(-5deg); box-shadow: 0 0 30px rgba(139, 195, 74, 1); }
+            75% { transform: scale(1.3) rotate(3deg); box-shadow: 0 0 20px rgba(139, 195, 74, 0.8); }
+            100% { transform: scale(1) rotate(0deg); box-shadow: none; }
+        }
+
+        /* 結合エフェクト用のパーティクル */
+        @keyframes particle {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff, #8bc34a);
+            pointer-events: none;
+            animation: particle 0.6s ease-out forwards;
         }
 
         .tile-2 { background: #dcedc8; }
@@ -126,8 +156,13 @@
         }
 
         .controls {
-            margin-top: 20px;
+            margin-top: 10px;
             color: white;
+            order: 10;
+        }
+
+        .controls p {
+            margin-bottom: 10px;
         }
 
         .btn-new-game {
@@ -138,9 +173,8 @@
             font-size: 18px;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.1s;
         }
 
         .btn-new-game:hover {
@@ -149,6 +183,19 @@
 
         .btn-new-game:active {
             transform: translateY(2px);
+        }
+
+        .controls-top {
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .controls-bottom {
+            margin-top: 20px;
+        }
+
+        .controls-bottom .btn-new-game {
+            margin-top: 0;
         }
 
         .growth-guide {
@@ -328,17 +375,22 @@
                 プレイ時間: <span id="playTime">0:00</span>
             </div>
         </div>
+        
+        <div class="controls-top">
+            <p>スワイプまたはWASDキーで操作</p>
+        </div>
+        
         <div class="game-board">
             <div class="grid" id="grid"></div>
-        </div>
-        <div class="controls">
-            <p>スワイプまたはWASDキーで操作</p>
-            <button class="btn-new-game" onclick="game.newGame()">新しいゲーム</button>
         </div>
         
         <div class="growth-guide">
             <h3>🌿 成長の段階</h3>
             <div class="growth-stages" id="growthStages"></div>
+        </div>
+        
+        <div class="controls-bottom">
+            <button class="btn-new-game" onclick="game.newGame()">新しいゲーム</button>
         </div>
         
         <div class="ranking-panel">
@@ -674,14 +726,34 @@
             move(dir) {
                 const old = JSON.stringify(this.grid);
                 let merged = false;
+                let mergedCells = [];
                 
-                if (dir === 'up') merged = this.moveUp();
-                else if (dir === 'down') merged = this.moveDown();
-                else if (dir === 'left') merged = this.moveLeft();
-                else if (dir === 'right') merged = this.moveRight();
+                if (dir === 'up') {
+                    const result = this.moveUp();
+                    merged = result.merged;
+                    mergedCells = result.cells;
+                } else if (dir === 'down') {
+                    const result = this.moveDown();
+                    merged = result.merged;
+                    mergedCells = result.cells;
+                } else if (dir === 'left') {
+                    const result = this.moveLeft();
+                    merged = result.merged;
+                    mergedCells = result.cells;
+                } else if (dir === 'right') {
+                    const result = this.moveRight();
+                    merged = result.merged;
+                    mergedCells = result.cells;
+                }
 
                 if (old !== JSON.stringify(this.grid)) {
-                    if (merged) this.playMergeSound();
+                    if (merged) {
+                        this.playMergeSound();
+                        // 結合エフェクトを表示
+                        mergedCells.forEach(({i, j}) => {
+                            this.showMergeEffect(i, j);
+                        });
+                    }
                     this.addNewTile();
                     this.render();
                     this.updateScore();
@@ -699,8 +771,41 @@
                 }
             }
 
+            showMergeEffect(i, j) {
+                const cellIndex = i * 4 + j;
+                const cell = document.getElementById(`cell-${cellIndex}`);
+                
+                // セルに結合アニメーションを追加
+                cell.classList.add('merged');
+                setTimeout(() => cell.classList.remove('merged'), 400);
+                
+                // パーティクルエフェクトを生成
+                const colors = ['#8bc34a', '#7cb342', '#689f38', '#aed581', '#c5e1a5'];
+                for (let k = 0; k < 8; k++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    const angle = (Math.PI * 2 * k) / 8;
+                    const distance = 50 + Math.random() * 30;
+                    const tx = Math.cos(angle) * distance;
+                    const ty = Math.sin(angle) * distance;
+                    
+                    particle.style.cssText = `
+                        left: 50%;
+                        top: 50%;
+                        --tx: ${tx}px;
+                        --ty: ${ty}px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    `;
+                    
+                    cell.appendChild(particle);
+                    setTimeout(() => particle.remove(), 600);
+                }
+            }
+
             moveLeft() {
                 let merged = false;
+                let mergedCells = [];
                 for (let i = 0; i < 4; i++) {
                     let row = this.grid[i].filter(v => v !== 0);
                     for (let j = 0; j < row.length - 1; j++) {
@@ -710,18 +815,22 @@
                             this.unlockStage(row[j]);
                             row.splice(j + 1, 1);
                             merged = true;
+                            // 結合後の位置を記録
+                            mergedCells.push({i, j});
                         }
                     }
                     while (row.length < 4) row.push(0);
                     this.grid[i] = row;
                 }
-                return merged;
+                return {merged, cells: mergedCells};
             }
 
             moveRight() {
                 let merged = false;
+                let mergedCells = [];
                 for (let i = 0; i < 4; i++) {
                     let row = this.grid[i].filter(v => v !== 0);
+                    let originalLength = row.length;
                     for (let j = row.length - 1; j > 0; j--) {
                         if (row[j] === row[j - 1]) {
                             row[j] *= 2;
@@ -730,16 +839,20 @@
                             row.splice(j - 1, 1);
                             j--;
                             merged = true;
+                            // 結合後の位置を記録（右寄せされるので3から逆算）
+                            const finalJ = 3 - (originalLength - 1 - j);
+                            mergedCells.push({i, j: finalJ});
                         }
                     }
                     while (row.length < 4) row.unshift(0);
                     this.grid[i] = row;
                 }
-                return merged;
+                return {merged, cells: mergedCells};
             }
 
             moveUp() {
                 let merged = false;
+                let mergedCells = [];
                 for (let j = 0; j < 4; j++) {
                     let col = [];
                     for (let i = 0; i < 4; i++) if (this.grid[i][j] !== 0) col.push(this.grid[i][j]);
@@ -750,19 +863,22 @@
                             this.unlockStage(col[i]);
                             col.splice(i + 1, 1);
                             merged = true;
+                            mergedCells.push({i, j});
                         }
                     }
                     while (col.length < 4) col.push(0);
                     for (let i = 0; i < 4; i++) this.grid[i][j] = col[i];
                 }
-                return merged;
+                return {merged, cells: mergedCells};
             }
 
             moveDown() {
                 let merged = false;
+                let mergedCells = [];
                 for (let j = 0; j < 4; j++) {
                     let col = [];
                     for (let i = 0; i < 4; i++) if (this.grid[i][j] !== 0) col.push(this.grid[i][j]);
+                    let originalLength = col.length;
                     for (let i = col.length - 1; i > 0; i--) {
                         if (col[i] === col[i - 1]) {
                             col[i] *= 2;
@@ -771,12 +887,14 @@
                             col.splice(i - 1, 1);
                             i--;
                             merged = true;
+                            const finalI = 3 - (originalLength - 1 - i);
+                            mergedCells.push({i: finalI, j});
                         }
                     }
                     while (col.length < 4) col.unshift(0);
                     for (let i = 0; i < 4; i++) this.grid[i][j] = col[i];
                 }
-                return merged;
+                return {merged, cells: mergedCells};
             }
 
             isGameOver() {
