@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>2048風ゲーム</title>
+    <title>Growing Photos</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -33,14 +33,25 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .score-container {
+        .info-container {
             color: white;
-            font-size: 24px;
+            font-size: 20px;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
         }
 
         .game-board {
-            background: #bbada0;
+            background: #4a90a4;
             border-radius: 10px;
             padding: 10px;
             display: inline-block;
@@ -57,14 +68,14 @@
         }
 
         .cell {
-            background: #cdc1b4;
+            background: #6fb3c5;
             border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 32px;
             font-weight: bold;
-            color: #776e65;
+            color: #2c5f6f;
             transition: all 0.15s ease-in-out;
         }
 
@@ -78,18 +89,18 @@
             100% { transform: scale(1); }
         }
 
-        /* タイルの色 */
-        .tile-2 { background: #eee4da; color: #776e65; }
-        .tile-4 { background: #ede0c8; color: #776e65; }
-        .tile-8 { background: #f2b179; color: #f9f6f2; }
-        .tile-16 { background: #f59563; color: #f9f6f2; }
-        .tile-32 { background: #f67c5f; color: #f9f6f2; }
-        .tile-64 { background: #f65e3b; color: #f9f6f2; }
-        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 28px; }
-        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 28px; }
-        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 28px; }
-        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 24px; }
-        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 24px; }
+        /* タイルの色 - 寒色系 */
+        .tile-2 { background: #d4f1f4; color: #2c5f6f; }
+        .tile-4 { background: #b8e6f0; color: #2c5f6f; }
+        .tile-8 { background: #89cff0; color: #ffffff; }
+        .tile-16 { background: #5dade2; color: #ffffff; }
+        .tile-32 { background: #3498db; color: #ffffff; }
+        .tile-64 { background: #2e86c1; color: #ffffff; }
+        .tile-128 { background: #2874a6; color: #ffffff; font-size: 28px; }
+        .tile-256 { background: #21618c; color: #ffffff; font-size: 28px; }
+        .tile-512 { background: #1b4f72; color: #ffffff; font-size: 28px; }
+        .tile-1024 { background: #154360; color: #ffffff; font-size: 24px; }
+        .tile-2048 { background: #0e2f44; color: #ffffff; font-size: 24px; }
 
         .controls {
             margin-top: 20px;
@@ -97,7 +108,7 @@
         }
 
         .btn-new-game {
-            background: #8f7a66;
+            background: #2874a6;
             color: white;
             border: none;
             padding: 15px 30px;
@@ -110,7 +121,7 @@
         }
 
         .btn-new-game:hover {
-            background: #9f8a76;
+            background: #3498db;
         }
 
         .btn-new-game:active {
@@ -142,12 +153,12 @@
 
         .game-over-content h2 {
             margin-bottom: 20px;
-            color: #776e65;
+            color: #2c5f6f;
         }
 
         @media (max-width: 600px) {
             h1 { font-size: 36px; }
-            .score-container { font-size: 20px; }
+            .info-container { font-size: 18px; gap: 15px; }
             .cell { font-size: 24px; }
             .tile-128, .tile-256, .tile-512 { font-size: 20px; }
             .tile-1024, .tile-2048 { font-size: 18px; }
@@ -156,9 +167,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>2048</h1>
-        <div class="score-container">
-            スコア: <span id="score">0</span>
+        <h1>Growing Photos</h1>
+        <div class="info-container">
+            <div class="info-item">
+                スコア: <span id="score">0</span>
+            </div>
+            <div class="info-item">
+                プレイ時間: <span id="playTime">0:00</span>
+            </div>
         </div>
         <div class="game-board">
             <div class="grid" id="grid"></div>
@@ -173,6 +189,7 @@
         <div class="game-over-content">
             <h2>ゲームオーバー</h2>
             <p>スコア: <span id="finalScore">0</span></p>
+            <p>プレイ時間: <span id="finalTime">0:00</span></p>
             <button class="btn-new-game" onclick="game.newGame()">もう一度</button>
         </div>
     </div>
@@ -187,6 +204,9 @@
                 this.touchStartY = 0;
                 this.touchEndX = 0;
                 this.touchEndY = 0;
+                this.startTime = null;
+                this.playTimeInterval = null;
+                this.audioContext = null;
                 
                 this.init();
             }
@@ -194,7 +214,86 @@
             init() {
                 this.setupGrid();
                 this.setupEventListeners();
+                this.initAudio();
                 this.newGame();
+            }
+
+            initAudio() {
+                // Web Audio APIの初期化
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Web Audio API not supported');
+                }
+            }
+
+            playMergeSound() {
+                if (!this.audioContext) return;
+
+                // AudioContextの再開（ブラウザのポリシー対応）
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+
+                const now = this.audioContext.currentTime;
+                
+                // オシレーター（音の発生源）を作成
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                // オシレーターをゲインノードに接続し、ゲインノードをスピーカーに接続
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                // 軽快なポロンという音（C6→E6の2音）
+                oscillator.frequency.setValueAtTime(1046.5, now); // C6
+                oscillator.frequency.exponentialRampToValueAtTime(1318.5, now + 0.05); // E6
+                
+                // 音量のエンベロープ（ADSR）
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01); // Attack
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15); // Decay & Release
+                
+                // 音の種類（サイン波で柔らかい音）
+                oscillator.type = 'sine';
+                
+                // 再生
+                oscillator.start(now);
+                oscillator.stop(now + 0.15);
+            }
+
+            startTimer() {
+                this.startTime = Date.now();
+                this.playTimeInterval = setInterval(() => {
+                    this.updatePlayTime();
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.playTimeInterval) {
+                    clearInterval(this.playTimeInterval);
+                    this.playTimeInterval = null;
+                }
+            }
+
+            updatePlayTime() {
+                if (!this.startTime) return;
+                
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                document.getElementById('playTime').textContent = timeString;
+            }
+
+            getPlayTimeString() {
+                if (!this.startTime) return '0:00';
+                
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
             }
 
             setupGrid() {
@@ -279,6 +378,8 @@
             newGame() {
                 this.grid = Array(this.gridSize).fill(null).map(() => Array(this.gridSize).fill(0));
                 this.score = 0;
+                this.stopTimer();
+                this.startTimer();
                 this.updateScore();
                 this.addNewTile();
                 this.addNewTile();
@@ -304,30 +405,36 @@
 
             move(direction) {
                 const oldGrid = JSON.stringify(this.grid);
+                let merged = false;
                 
                 switch(direction) {
                     case 'up':
-                        this.moveUp();
+                        merged = this.moveUp();
                         break;
                     case 'down':
-                        this.moveDown();
+                        merged = this.moveDown();
                         break;
                     case 'left':
-                        this.moveLeft();
+                        merged = this.moveLeft();
                         break;
                     case 'right':
-                        this.moveRight();
+                        merged = this.moveRight();
                         break;
                 }
 
                 if (oldGrid !== JSON.stringify(this.grid)) {
+                    if (merged) {
+                        this.playMergeSound();
+                    }
                     this.addNewTile();
                     this.render();
                     this.updateScore();
                     
                     if (this.isGameOver()) {
+                        this.stopTimer();
                         setTimeout(() => {
                             document.getElementById('finalScore').textContent = this.score;
+                            document.getElementById('finalTime').textContent = this.getPlayTimeString();
                             document.getElementById('gameOver').classList.add('show');
                         }, 300);
                     }
@@ -335,6 +442,7 @@
             }
 
             moveLeft() {
+                let merged = false;
                 for (let i = 0; i < this.gridSize; i++) {
                     let row = this.grid[i].filter(val => val !== 0);
                     for (let j = 0; j < row.length - 1; j++) {
@@ -342,6 +450,7 @@
                             row[j] *= 2;
                             this.score += row[j];
                             row.splice(j + 1, 1);
+                            merged = true;
                         }
                     }
                     while (row.length < this.gridSize) {
@@ -349,9 +458,11 @@
                     }
                     this.grid[i] = row;
                 }
+                return merged;
             }
 
             moveRight() {
+                let merged = false;
                 for (let i = 0; i < this.gridSize; i++) {
                     let row = this.grid[i].filter(val => val !== 0);
                     for (let j = row.length - 1; j > 0; j--) {
@@ -360,6 +471,7 @@
                             this.score += row[j];
                             row.splice(j - 1, 1);
                             j--;
+                            merged = true;
                         }
                     }
                     while (row.length < this.gridSize) {
@@ -367,9 +479,11 @@
                     }
                     this.grid[i] = row;
                 }
+                return merged;
             }
 
             moveUp() {
+                let merged = false;
                 for (let j = 0; j < this.gridSize; j++) {
                     let col = [];
                     for (let i = 0; i < this.gridSize; i++) {
@@ -382,6 +496,7 @@
                             col[i] *= 2;
                             this.score += col[i];
                             col.splice(i + 1, 1);
+                            merged = true;
                         }
                     }
                     while (col.length < this.gridSize) {
@@ -391,9 +506,11 @@
                         this.grid[i][j] = col[i];
                     }
                 }
+                return merged;
             }
 
             moveDown() {
+                let merged = false;
                 for (let j = 0; j < this.gridSize; j++) {
                     let col = [];
                     for (let i = 0; i < this.gridSize; i++) {
@@ -407,6 +524,7 @@
                             this.score += col[i];
                             col.splice(i - 1, 1);
                             i--;
+                            merged = true;
                         }
                     }
                     while (col.length < this.gridSize) {
@@ -416,6 +534,7 @@
                         this.grid[i][j] = col[i];
                     }
                 }
+                return merged;
             }
 
             isGameOver() {
