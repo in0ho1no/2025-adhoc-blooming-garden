@@ -1,8 +1,29 @@
+![GitHub Pages](https://img.shields.io/badge/demo-live-brightgreen)
+![Made with AI](https://img.shields.io/badge/made%20with-AI-blue)
+![Vibe Coding](https://img.shields.io/badge/vibe-coding-purple)
+
 # 🌱 Blooming Garden - 花咲く庭園 🌸
 
 植物の成長をテーマにした2048風パズルゲーム
 
 **🎮 今すぐプレイ: [https://in0ho1no.github.io/2025-adhoc-blooming-garden/](https://in0ho1no.github.io/2025-adhoc-blooming-garden/)**
+
+---
+
+## 🤖 Vibe Codingで作成
+
+このゲームは**100% AIによって作成**されました。
+
+- **作成方法**: Vibe Coding（自然言語での対話的プログラミング）
+- **使用AI**: Claude (Anthropic)
+- **開発者**: 非エンジニア
+- **開発時間**: 約2時間の対話
+
+### Vibe Codingとは？
+
+プログラミング知識がなくても、AIとの対話だけで実用的なアプリケーションを作成できる新しい開発手法です。このプロジェクトは、**非エンジニアでも高品質なゲームを作れる**ことを実証するデモンストレーションです。
+
+---
 
 ## 📖 概要
 
@@ -207,11 +228,42 @@ DEPLOY.md   # GitHub Pagesへの公開手順
 
 このゲームは個人利用・商用利用ともに自由にお使いいただけます。
 
+## 🤖 Vibe Codingについて
+
+このプロジェクトは、AIとの自然言語での対話のみで作成されました。
+
+### 開発プロセス
+
+1. **要件定義**: 「2048風のゲームを作りたい」という簡単な説明からスタート
+2. **デザイン決定**: 「植物の成長」というテーマをAIと対話しながら決定
+3. **機能追加**: 「達成システムが欲しい」「演出を派手にして」などの要望を伝えるだけ
+4. **問題解決**: 「スマホでスクロールできない」などの問題もAIが解決
+
+### コーディング知識不要
+
+- HTML/CSS/JavaScriptの知識: **不要**
+- 開発環境の構築: **不要**
+- デバッグ作業: **AIが実施**
+
+### 非エンジニアでも作れる高度な機能
+
+- SVGアニメーション
+- Web Audio API（音声生成）
+- localStorage（データ永続化）
+- レスポンシブデザイン
+- パーティクルエフェクト
+
+このプロジェクトは、**AIの力を借りれば、誰でもクリエイターになれる**ことを示しています。
+
 ## 🙏 クレジット
 
-- ゲームデザイン: 2048風パズルゲームをベースに、植物成長テーマでアレンジ
-- オリジナル2048: Gabriele Cirulli
+- **開発**: Vibe Coding（AI対話型開発）
+- **AI**: Claude (Anthropic)
+- **ゲームデザイン**: 2048風パズルゲームをベースに、植物成長テーマでアレンジ
+- **オリジナル2048**: Gabriele Cirulli
 
 ---
 
 **Enjoy growing your garden! 🌻**
+
+**Made with 🤖 Vibe Coding**
